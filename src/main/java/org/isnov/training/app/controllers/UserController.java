@@ -89,6 +89,22 @@ public class UserController {
         return ResponseEntity.ok(appResponseDTO);
     }
 
+
+    @GetMapping("/get/random")
+    public ResponseEntity<AppResponseDTO> random() {
+
+        AppResponseDTO appResponseDTO = new AppResponseDTO();
+        try {
+            appResponseDTO.setContent(
+                    userService.getRandomUser()
+            );
+        } catch (Exception e) {
+            appResponseDTO.setStatus(-1);
+            appResponseDTO.setError(new AppExceptionDTO("6256256", e.getMessage()));
+        }
+        return ResponseEntity.ok(appResponseDTO);
+    }
+
     @GetMapping("/get/user-property/{userId}")
     public ResponseEntity<AppResponseDTO> getUserPropertyByUser(@PathVariable Long userId) {
 

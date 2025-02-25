@@ -1,5 +1,7 @@
 package org.isnov.training.app.services;
 
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.isnov.training.app.dto.UserGroupDTO;
 import org.isnov.training.app.dto.UserPropertyResponseDTO;
 import org.isnov.training.app.dto.UserResponseDTO;
@@ -11,11 +13,18 @@ import org.isnov.training.app.repositories.UserPropertyRepository;
 import org.isnov.training.app.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
+@Slf4j
 @Service
 public class UserService {
     @Autowired
@@ -24,6 +33,17 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private UserPropertyRepository userPropertyRepository;
+
+    @Autowired
+    private TaskService taskService;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
+    @PostConstruct
+    private void sayYes(){
+        log.warn("say Yes");
+    }
 
     public UserResponseDTO getUserByIdWithDto(Long userId) {
         User user = getUserById(userId);
@@ -40,7 +60,7 @@ public class UserService {
                         .build()
         ));
 
-        return UserResponseDTO.builder()
+        UserResponseDTO userResponseDTO = UserResponseDTO.builder()
                 .id(user.getUserId())
                 .resume(user.getDescription())
                 .name(user.getName())
@@ -53,6 +73,11 @@ public class UserService {
                 )
                 .properties(userPropertyResponseDTOS)
                 .build();
+
+        taskService.numberOfUserProperty(userProperties.size());
+        messagingTemplate.convertAndSend("/topic/admin", "On recuperer les infos de "+user.getName());
+
+        return userResponseDTO;
     }
 
     public User getUserById(Long userId) {
@@ -123,5 +148,13 @@ public class UserService {
             throw new Exception("provide size");
 
         return groupRepository.findAll(Pageable.ofSize(size).withPage(page)).getContent();
+    }
+
+    public LinkedHashMap getRandomUser(){
+        HttpEntity<LinkedHashMap<?, ?>> entity = new HttpEntity<>(new HttpHeaders());
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        return restTemplate.exchange("https://randomuser.me/api/", HttpMethod.GET, entity, LinkedHashMap.class).getBody();
     }
 }
