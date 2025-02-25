@@ -1,15 +1,10 @@
 package org.isnov.training.app.controllers;
 
-import org.isnov.training.app.dto.UserResponseDTO;
-import org.isnov.training.app.entities.User;
-import org.isnov.training.app.entities.UserGroup;
-import org.isnov.training.app.models.UserProperty;
+import org.isnov.training.app.dto.*;
 import org.isnov.training.app.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -18,51 +13,95 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/add/group")
-    public ResponseEntity<UserGroup> createGroup(@RequestParam String name, @RequestParam String description){
-        return ResponseEntity.ok(
-                userService.createGroup(name, description)
-        );
+    public ResponseEntity<AppResponseDTO> createGroup(@RequestBody AddUserGroupDTO addUserGroupDTO) {
+        AppResponseDTO appResponseDTO = new AppResponseDTO();
+        try {
+            appResponseDTO.setContent(
+                    userService.createGroup(addUserGroupDTO.getName(), addUserGroupDTO.getDescription())
+            );
+        } catch (Exception e) {
+            appResponseDTO.setStatus(-1);
+            appResponseDTO.setError(new AppExceptionDTO("6256256", e.getMessage()));
+        }
+        return ResponseEntity.ok(appResponseDTO);
     }
 
     @PostMapping("/add/user")
-    public ResponseEntity<User> createUser(
-            @RequestBody UserResponseDTO dto,
-            @RequestParam Long groupId,
-            @RequestParam String name,
-            @RequestParam String last_name,
-            @RequestParam String description) throws Exception {
-        return ResponseEntity.ok(
-                userService.createUser(groupId, name, last_name, description)
-        );
+    public ResponseEntity<AppResponseDTO> createUser(
+            @RequestBody AddUserDTO addUserDTO
+    ) {
+        AppResponseDTO appResponseDTO = new AppResponseDTO();
+        try {
+            appResponseDTO.setContent(
+                    userService.createUser(addUserDTO.getGroupId(), addUserDTO.getName(), addUserDTO.getLast_name(), addUserDTO.getDescription())
+            );
+        } catch (Exception e) {
+            appResponseDTO.setStatus(-1);
+            appResponseDTO.setError(new AppExceptionDTO("6256256", e.getMessage()));
+        }
+        return ResponseEntity.ok(appResponseDTO);
     }
 
     @PostMapping("/add/user-property/{userId}")
-    public ResponseEntity<UserProperty> createUserProperty(
+    public ResponseEntity<AppResponseDTO> createUserProperty(
             @PathVariable Long userId,
             @RequestParam String key,
             @RequestParam String value) throws Exception {
-        return ResponseEntity.ok(
-                userService.createUserProperty(userId, key, value)
-        );
+        AppResponseDTO appResponseDTO = new AppResponseDTO();
+        try {
+            appResponseDTO.setContent(
+                    userService.createUserProperty(userId, key, value)
+            );
+        } catch (Exception e) {
+            appResponseDTO.setStatus(-1);
+            appResponseDTO.setError(new AppExceptionDTO("6256256", e.getMessage()));
+        }
+        return ResponseEntity.ok(appResponseDTO);
     }
 
     @GetMapping("/get/user/{userId}")
-    public ResponseEntity<User> getUserById(@PathVariable Long userId){
-        return ResponseEntity.ok(
-                userService.getUserById(userId)
-        );
+    public ResponseEntity<AppResponseDTO> getUserById(@PathVariable Long userId) {
+
+        AppResponseDTO appResponseDTO = new AppResponseDTO();
+        try {
+            appResponseDTO.setContent(
+                    userService.getUserById(userId)
+            );
+        } catch (Exception e) {
+            appResponseDTO.setStatus(-1);
+            appResponseDTO.setError(new AppExceptionDTO("6256256", e.getMessage()));
+        }
+        return ResponseEntity.ok(appResponseDTO);
     }
 
     @GetMapping("/get/user/dto/{userId}")
-    public ResponseEntity<UserResponseDTO> getUserByIdWithDto(@PathVariable Long userId){
-        return ResponseEntity.ok(
-                userService.getUserByIdWithDto(userId)
-        );
+    public ResponseEntity<AppResponseDTO> getUserByIdWithDto(@PathVariable Long userId) {
+
+        AppResponseDTO appResponseDTO = new AppResponseDTO();
+        try {
+            appResponseDTO.setContent(
+                    userService.getUserByIdWithDto(userId)
+            );
+        } catch (Exception e) {
+            appResponseDTO.setStatus(-1);
+            appResponseDTO.setError(new AppExceptionDTO("6256256", e.getMessage()));
+        }
+        return ResponseEntity.ok(appResponseDTO);
     }
+
     @GetMapping("/get/user-property/{userId}")
-    public ResponseEntity<List<UserProperty>> getUserPropertyByUser(@PathVariable Long userId){
-        return ResponseEntity.ok(
-                userService.getUserPropertyByUser(userId)
-        );
+    public ResponseEntity<AppResponseDTO> getUserPropertyByUser(@PathVariable Long userId) {
+
+        AppResponseDTO appResponseDTO = new AppResponseDTO();
+        try {
+            appResponseDTO.setContent(
+                    userService.getUserPropertyByUser(userId)
+            );
+        } catch (Exception e) {
+            appResponseDTO.setStatus(-1);
+            appResponseDTO.setError(new AppExceptionDTO("6256256", e.getMessage()));
+        }
+        return ResponseEntity.ok(appResponseDTO);
+
     }
 }
