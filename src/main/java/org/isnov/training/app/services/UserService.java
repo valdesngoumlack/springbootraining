@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -76,6 +77,11 @@ public class UserService {
 
         taskService.numberOfUserProperty(userProperties.size());
         messagingTemplate.convertAndSend("/topic/admin", "On recuperer les infos de "+user.getName());
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("name", user.getName());
+        params.put("activationLink", "www.isnov.com");
+        taskService.sendHtmlEmail("welcome", "valdes.ngoumlack@gmail.com", "Bienvenue sur training", params);
 
         return userResponseDTO;
     }
